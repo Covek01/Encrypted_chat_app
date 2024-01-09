@@ -23,6 +23,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using CypherNew.Cyphers;
+using CipherNew.DTO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace CipherNew.Forms
 {
@@ -33,8 +35,9 @@ namespace CipherNew.Forms
         private readonly int _ID;
         private bool _encrypted = false;
         private List<DTO.MessageWithSender> _messages = new List<DTO.MessageWithSender>();
+        private List<DTO.CachedFile> _receivedFiles = new List<DTO.CachedFile>();
         private Dictionary<int, string> _usernamesForIdsByUsers = new Dictionary<int, string>();
-
+        private FileDTO? _fileBuffer;
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IMessageManager _messageManager;
@@ -53,7 +56,7 @@ namespace CipherNew.Forms
             _cypher = _serviceProvider.GetRequiredService<ICypher>();
             _username = username;
             _ID = _userManager.GetIdByUsername(_username);
-
+            _fileBuffer = new FileDTO();
 
 
             InitializeComponent();
@@ -72,7 +75,8 @@ namespace CipherNew.Forms
                 MessageBox.Show("ERROR, MESSAGE NOT SENT!");
             }
 
-
+            txtInputMessage.Text = String.Empty;
+            txtInputMessage.Focus();
         }
 
         private void Chat_Load(object sender, EventArgs e)
@@ -139,6 +143,8 @@ namespace CipherNew.Forms
                 {
                     id = 0,
                     isRead = false,
+                    isFile = false,
+                    Filename = "",
                     Text = "",
                     SenderId = 0,
                     RecieverId = 0
@@ -149,25 +155,57 @@ namespace CipherNew.Forms
 
 
             string decrypted = _cypher.Decrypt(x.data.Text);
+            string decryptedFilename = "";
+            if (x.data.isFile)
+            {
+                decryptedFilename = _cypher.Decrypt(x.data.Filename);
+            }
+
             int senderId = x.data.SenderId;
 
             string usernameOfSender = _usernamesForIdsByUsers[senderId];
             DTO.MessageWithSender mess = new DTO.MessageWithSender();
             mess.Message = decrypted;
             mess.Sender = usernameOfSender;
+            mess.isFile = x.data.isFile;
+            mess.Filename = decryptedFilename;
 
             if (!_closingWindow)
             {
                 this.Invoke(new MethodInvoker(delegate ()
                 {
-
-                    _messages.Add(mess);
-                    listBoxMessages.Items.Clear();
-                    foreach (var message in _messages)
+                    //IF RECEIVED DATA IS FILE
+                    if (x.data.isFile)
                     {
+                        //add to list of received files
+                        string onlyFileName = Path.GetFileName(mess.Filename);
+                        _receivedFiles.Add(new CachedFile(onlyFileName, mess.Message));
 
-                        listBoxMessages.Items.Add((_encrypted) ? $"{message.Sender} :  {_cypher.Encrypt(message.Message)}"
-                            : $"{message.Sender} :  {message.Message}");
+                        //adding a message to list of messages
+                        mess.Message = $"SENT A FILE {onlyFileName}";
+                        _messages.Add(mess);
+
+                        foreach (var message in _messages)
+                        {
+
+                            listBoxMessages.Items.Add((_encrypted) ? $"{message.Sender} :  {_cypher.Encrypt(message.Message)}"
+                                : $"{message.Sender} :  {message.Message}");
+
+                        }
+                    }
+                    else
+                    {
+                        //IF RECEIVED DATA IS MESSAGE
+                        _messages.Add(mess);
+                        listBoxMessages.Items.Clear();
+                        foreach (var message in _messages)
+                        {
+
+                            listBoxMessages.Items.Add((_encrypted) ? $"{message.Sender} :  {_cypher.Encrypt(message.Message)}"
+                                : $"{message.Sender} :  {message.Message}");
+
+                        }
+
 
                     }
 
@@ -176,7 +214,6 @@ namespace CipherNew.Forms
                         MessageBox.Show("Other user has left the chat... Window is closing");
                         this.Close();
                     }
-
                 }));
             }
 
@@ -223,12 +260,14 @@ namespace CipherNew.Forms
 
             bool userRemoved = false;
 
-            while (!userRemoved)
+            int counter = 0;
+            while (!userRemoved && counter < 10)
             {
                 userRemoved = _userManager.RemoveUser(_username);
+                counter++;
             }
 
-           
+
         }
 
         public void RefreshMessagesBox()
@@ -278,6 +317,35 @@ namespace CipherNew.Forms
                 RefreshMessagesBox();
             }
 
+        }
+
+        private void btnSendFile_Click(object sender, EventArgs e)
+        {
+            openFileDialogSend.ShowDialog();
+            string fileName = openFileDialogSend.FileName;
+            if (fileName == null || fileName == "openFileDialogSend")
+            {
+                return;
+            }
+            string text = File.ReadAllText(fileName);
+
+            _fileBuffer.isSet = true;
+            _fileBuffer.Name = _cypher.Encrypt(fileName);
+            _fileBuffer.Text = _cypher.Encrypt(text);
+
+            uint key = UInt32.Parse(ConfigurationManager.AppSettings["key"]);
+            string encryptedMessage = _cypher.Encrypt(_fileBuffer.Text);
+            bool messageSent = _messageManager.InsertFile(_fileBuffer.Name, _fileBuffer.Text, _username);
+            if (!messageSent)
+            {
+                MessageBox.Show("ERROR, FILE NOT SENT!\nTry sending lower sized files");
+            }
+        }
+
+        private void btnReceivedFiles_Click(object sender, EventArgs e)
+        {
+            var window = new Forms.ReceivedFiles(_receivedFiles);
+            window.ShowDialog();
         }
     }
 }

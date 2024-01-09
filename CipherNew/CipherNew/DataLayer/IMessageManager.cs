@@ -9,6 +9,7 @@ namespace CipherNew.DataLayer
     public interface IMessageManager
     {
         bool InsertMessage(string text, string senderUsername);
+        bool InsertFile(string filename, string text, string senderUsername);
         Task RemoveMessage(int idMessage);
         List<string>? ReadAllReceivedMessages(int id);
         bool RemoveMessagesBySender(int idSender);

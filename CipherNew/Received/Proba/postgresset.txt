@@ -1,0 +1,5 @@
+docker pull postgres
+
+docker run -d --name postgres2 -p 5432:5432 -e postgres_password=password postgres
+
+psql -h localhost -u postgres -p 5432 -w

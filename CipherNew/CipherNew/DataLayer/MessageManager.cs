@@ -19,6 +19,38 @@ namespace CipherNew.DataLayer
 
                 message.Text = text;
                 message.IsRead = false;
+                message.IsFile = false;
+                message.Filename = String.Empty;
+                message.Sender = context.Users
+                    .Where(p => p.Username == senderUsername)
+                    .FirstOrDefault();
+                message.Receiver = context.Users
+                    .Where(p => p.Username != senderUsername)
+                    .FirstOrDefault();
+
+                context.Messages.Add(message);
+                context.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return false;
+            }
+        }
+
+        public bool InsertFile(string filename, string text, string senderUsername)
+        {
+            try
+            {
+                var context = new Context();
+                var message = new DatabaseContext.Message();
+
+                message.Text = text;
+                message.IsRead = false;
+                message.IsFile = true;
+                message.Filename = filename;
                 message.Sender = context.Users
                     .Where(p => p.Username == senderUsername)
                     .FirstOrDefault();

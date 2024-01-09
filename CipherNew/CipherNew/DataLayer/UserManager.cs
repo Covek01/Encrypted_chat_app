@@ -22,7 +22,7 @@ namespace CipherNew.DataLayer
 
                 return number;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 return -1;
@@ -196,7 +196,7 @@ namespace CipherNew.DataLayer
 
                 foreach (var user in users)
                 {
-                    usersReturn.Add(new UserDTO { ID = user.Id, Name = user.Username});
+                    usersReturn.Add(new UserDTO { ID = user.Id, Name = user.Username });
                 }
 
                 return usersReturn;

@@ -34,14 +34,18 @@
             btnSend = new Button();
             chkRailFence = new RadioButton();
             chkXXTeaWithCBC = new RadioButton();
+            openFileDialogSend = new OpenFileDialog();
+            btnSendFile = new Button();
+            btnReceivedFiles = new Button();
             SuspendLayout();
             // 
             // chkEncrypted
             // 
             chkEncrypted.AutoSize = true;
-            chkEncrypted.Location = new Point(34, 27);
+            chkEncrypted.Location = new Point(30, 20);
+            chkEncrypted.Margin = new Padding(3, 2, 3, 2);
             chkEncrypted.Name = "chkEncrypted";
-            chkEncrypted.Size = new Size(97, 24);
+            chkEncrypted.Size = new Size(79, 19);
             chkEncrypted.TabIndex = 0;
             chkEncrypted.Text = "Encrypted";
             chkEncrypted.UseVisualStyleBackColor = true;
@@ -50,23 +54,27 @@
             // listBoxMessages
             // 
             listBoxMessages.FormattingEnabled = true;
-            listBoxMessages.Location = new Point(14, 147);
+            listBoxMessages.ItemHeight = 15;
+            listBoxMessages.Location = new Point(12, 110);
+            listBoxMessages.Margin = new Padding(3, 2, 3, 2);
             listBoxMessages.Name = "listBoxMessages";
-            listBoxMessages.Size = new Size(701, 264);
+            listBoxMessages.Size = new Size(614, 199);
             listBoxMessages.TabIndex = 1;
             // 
             // txtInputMessage
             // 
-            txtInputMessage.Location = new Point(14, 451);
+            txtInputMessage.Location = new Point(12, 338);
+            txtInputMessage.Margin = new Padding(3, 2, 3, 2);
             txtInputMessage.Name = "txtInputMessage";
-            txtInputMessage.Size = new Size(579, 27);
+            txtInputMessage.Size = new Size(507, 23);
             txtInputMessage.TabIndex = 2;
             // 
             // btnSend
             // 
-            btnSend.Location = new Point(615, 444);
+            btnSend.Location = new Point(538, 333);
+            btnSend.Margin = new Padding(3, 2, 3, 2);
             btnSend.Name = "btnSend";
-            btnSend.Size = new Size(109, 41);
+            btnSend.Size = new Size(95, 31);
             btnSend.TabIndex = 3;
             btnSend.Text = "Send";
             btnSend.UseVisualStyleBackColor = true;
@@ -76,9 +84,10 @@
             // 
             chkRailFence.AutoSize = true;
             chkRailFence.Enabled = false;
-            chkRailFence.Location = new Point(198, 26);
+            chkRailFence.Location = new Point(173, 20);
+            chkRailFence.Margin = new Padding(3, 2, 3, 2);
             chkRailFence.Name = "chkRailFence";
-            chkRailFence.Size = new Size(141, 24);
+            chkRailFence.Size = new Size(114, 19);
             chkRailFence.TabIndex = 6;
             chkRailFence.TabStop = true;
             chkRailFence.Text = "RailFence cypher";
@@ -89,9 +98,10 @@
             // 
             chkXXTeaWithCBC.AutoSize = true;
             chkXXTeaWithCBC.Enabled = false;
-            chkXXTeaWithCBC.Location = new Point(198, 61);
+            chkXXTeaWithCBC.Location = new Point(173, 46);
+            chkXXTeaWithCBC.Margin = new Padding(3, 2, 3, 2);
             chkXXTeaWithCBC.Name = "chkXXTeaWithCBC";
-            chkXXTeaWithCBC.Size = new Size(184, 26);
+            chkXXTeaWithCBC.Size = new Size(149, 22);
             chkXXTeaWithCBC.TabIndex = 7;
             chkXXTeaWithCBC.TabStop = true;
             chkXXTeaWithCBC.Text = "XXTea with CBC cypher";
@@ -99,17 +109,44 @@
             chkXXTeaWithCBC.UseVisualStyleBackColor = true;
             chkXXTeaWithCBC.CheckedChanged += chkXXTeaWithCBC_CheckedChanged_1;
             // 
+            // openFileDialogSend
+            // 
+            openFileDialogSend.FileName = "openFileDialogSend";
+            // 
+            // btnSendFile
+            // 
+            btnSendFile.Location = new Point(542, 59);
+            btnSendFile.Name = "btnSendFile";
+            btnSendFile.Size = new Size(84, 31);
+            btnSendFile.TabIndex = 8;
+            btnSendFile.Text = "Send file";
+            btnSendFile.UseVisualStyleBackColor = true;
+            btnSendFile.Click += btnSendFile_Click;
+            // 
+            // btnReceivedFiles
+            // 
+            btnReceivedFiles.Location = new Point(415, 59);
+            btnReceivedFiles.Name = "btnReceivedFiles";
+            btnReceivedFiles.Size = new Size(104, 31);
+            btnReceivedFiles.TabIndex = 9;
+            btnReceivedFiles.Text = "Received files";
+            btnReceivedFiles.UseVisualStyleBackColor = true;
+            btnReceivedFiles.Click += btnReceivedFiles_Click;
+            // 
             // Chat
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(754, 539);
+            ClientSize = new Size(660, 404);
+            Controls.Add(btnReceivedFiles);
+            Controls.Add(btnSendFile);
             Controls.Add(chkXXTeaWithCBC);
             Controls.Add(chkRailFence);
             Controls.Add(btnSend);
             Controls.Add(txtInputMessage);
             Controls.Add(listBoxMessages);
             Controls.Add(chkEncrypted);
+            Margin = new Padding(3, 2, 3, 2);
             Name = "Chat";
             Text = "Chat";
             FormClosing += Chat_FormClosing;
@@ -126,5 +163,8 @@
         private Button btnSend;
         private RadioButton chkRailFence;
         private RadioButton chkXXTeaWithCBC;
+        private OpenFileDialog openFileDialogSend;
+        private Button btnSendFile;
+        private Button btnReceivedFiles;
     }
 }

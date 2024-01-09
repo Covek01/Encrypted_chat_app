@@ -10,6 +10,8 @@ namespace CipherNew.DTO
     {
         public string Sender { get; set; }
         public string Message { get; set; }
+        public bool isFile { get; set; }
+        public string Filename { get; set; }
     }
 
 }
