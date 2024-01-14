@@ -26,6 +26,7 @@ using CypherNew.Cyphers;
 using CipherNew.DTO;
 using CipherNew.Hashes;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 
 namespace CipherNew.Forms
@@ -269,10 +270,6 @@ namespace CipherNew.Forms
                 counter++;
             }
 
-            uint key = UInt32.Parse(ConfigurationManager.AppSettings["key"]);
-            string closingMessage = "HAS LEFT THE CHAT...";
-            string encryptedMessage = _cypher.Encrypt(closingMessage);
-            bool messageSent = _messageManager.InsertMessage(encryptedMessage, _username);
         }
 
         public void RefreshMessagesBox()
@@ -329,7 +326,11 @@ namespace CipherNew.Forms
 
         private void btnSendFile_Click(object sender, EventArgs e)
         {
-            openFileDialogSend.ShowDialog();
+            if (openFileDialogSend.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
             string fileName = openFileDialogSend.FileName;
             if (fileName == null || fileName == "openFileDialogSend")
             {

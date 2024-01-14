@@ -17,10 +17,12 @@ namespace CipherNew.Forms
     public partial class ReceivedFiles : Form
     {
         private Dictionary<string, string> _cachedFiles;
+        private string _folderPath;
 
         public ReceivedFiles(List<CachedFile> files)
         {
             _cachedFiles = new Dictionary<string, string>();
+            _folderPath = String.Empty;
 
             InitializeComponent();
 
@@ -36,14 +38,22 @@ namespace CipherNew.Forms
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            //CreateFolderByInput();
-            string path = SelectFolderPath();
+            if (chkListBoxFiles.CheckedItems.Count == 0)
+            {
+                MessageBox.Show("SELECT FILES");
+                return;
+            }
+            if (_folderPath == String.Empty)
+            {
+                MessageBox.Show("SELECT A FOLDER");
+                return;
+            }
 
             //string path = ConfigurationManager.AppSettings["received_files_folder"];
             foreach (var checkedItem in chkListBoxFiles.CheckedItems)
             {
                 string selectedFilename = checkedItem.ToString();
-                string pathFull = $"{path}\\{selectedFilename}";
+                string pathFull = $"{_folderPath}\\{selectedFilename}";
                 WriteToFile(pathFull, _cachedFiles[selectedFilename]);
             }
 
@@ -55,7 +65,11 @@ namespace CipherNew.Forms
             var dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = ".\\";
             dialog.IsFolderPicker = true;
-            dialog.ShowDialog();
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok)
+            {
+                return String.Empty;
+            }
+            lblFolderName.Text = dialog.FileName;
 
             return dialog.FileName;
         }
@@ -69,23 +83,18 @@ namespace CipherNew.Forms
             }
         }
 
-        private void CreateFolderByInput()
+        private void btnChooseFolder_Click(object sender, EventArgs e)
         {
-            string path = ConfigurationManager.AppSettings["received_files_folder"];
-            string pathFull = $"{path}{txtInputFolder.Text}";
-            Directory.CreateDirectory(pathFull);
+            _folderPath = SelectFolderPath();
         }
 
-        private void txtInputFolder_TextChanged(object sender, EventArgs e)
-        {
-            if (txtInputFolder.Text != "" && txtInputFolder.Text != "Received")
-            {
-                btnDownload.Enabled = true;
-            }
-            else
-            {
-                btnDownload.Enabled = false;
-            }
-        }
+        /*        private void CreateFolderByInput()
+                {
+                    string path = ConfigurationManager.AppSettings["received_files_folder"];
+                    string pathFull = $"{path}{txtInputFolder.Text}";
+                    Directory.CreateDirectory(pathFull);
+                }*/
+
+
     }
 }
