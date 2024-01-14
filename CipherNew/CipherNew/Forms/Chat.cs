@@ -24,7 +24,9 @@ using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using CypherNew.Cyphers;
 using CipherNew.DTO;
+using CipherNew.Hashes;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+
 
 namespace CipherNew.Forms
 {
@@ -53,7 +55,8 @@ namespace CipherNew.Forms
             _serviceProvider = provider;
             _messageManager = _serviceProvider.GetRequiredService<IMessageManager>();
             _userManager = _serviceProvider.GetRequiredService<IUserManager>();
-            _cypher = _serviceProvider.GetRequiredService<ICypher>();
+            //_cypher = _serviceProvider.GetRequiredService<ICypher>();
+            _cypher = new RailFenceCypher(true);
             _username = username;
             _ID = _userManager.GetIdByUsername(_username);
             _fileBuffer = new FileDTO();
@@ -146,6 +149,7 @@ namespace CipherNew.Forms
                     isFile = false,
                     Filename = "",
                     Text = "",
+                    Hash = "",
                     SenderId = 0,
                     RecieverId = 0
                 }
@@ -169,6 +173,9 @@ namespace CipherNew.Forms
             mess.Sender = usernameOfSender;
             mess.isFile = x.data.isFile;
             mess.Filename = decryptedFilename;
+            mess.Hash = x.data.Hash;
+
+            int idOfSender = x.data.SenderId;
 
             if (!_closingWindow)
             {
@@ -179,33 +186,28 @@ namespace CipherNew.Forms
                     {
                         //add to list of received files
                         string onlyFileName = Path.GetFileName(mess.Filename);
-                        _receivedFiles.Add(new CachedFile(onlyFileName, mess.Message));
+
+                        List<string> allNamesOfReceivedFiles = _receivedFiles.Select(file => file.Name).ToList();
+                        if (idOfSender != _ID && !allNamesOfReceivedFiles.Contains(onlyFileName))  //IF SENDER_ID IS NOT EQUAL MY ID, OR AM I A RECEIVER
+                        {
+                            _receivedFiles.Add(new CachedFile(onlyFileName, mess.Message));
+                        }
+
 
                         //adding a message to list of messages
-                        mess.Message = $"SENT A FILE {onlyFileName}";
+                        //IF HASHES MATCH, THEN ADD A MESSAGE, IF NOT, ADD IT AGAIN, BUT INFORM THAT THERE IS AN ERROR
+                        mess.Message = (mess.Hash == Hashes.MD5.Hash(mess.Message)) ?
+                                        $"SENT A FILE {onlyFileName}" : $"***SENT A FILE {onlyFileName}, FILE RECEIVED WITH ERRORS (Hash code doesn't match)***";
                         _messages.Add(mess);
 
-                        foreach (var message in _messages)
-                        {
-
-                            listBoxMessages.Items.Add((_encrypted) ? $"{message.Sender} :  {_cypher.Encrypt(message.Message)}"
-                                : $"{message.Sender} :  {message.Message}");
-
-                        }
+                        RefreshMessagesBox();
                     }
                     else
                     {
                         //IF RECEIVED DATA IS MESSAGE
+
                         _messages.Add(mess);
-                        listBoxMessages.Items.Clear();
-                        foreach (var message in _messages)
-                        {
-
-                            listBoxMessages.Items.Add((_encrypted) ? $"{message.Sender} :  {_cypher.Encrypt(message.Message)}"
-                                : $"{message.Sender} :  {message.Message}");
-
-                        }
-
+                        RefreshMessagesBox();
 
                     }
 
@@ -267,7 +269,10 @@ namespace CipherNew.Forms
                 counter++;
             }
 
-
+            uint key = UInt32.Parse(ConfigurationManager.AppSettings["key"]);
+            string closingMessage = "HAS LEFT THE CHAT...";
+            string encryptedMessage = _cypher.Encrypt(closingMessage);
+            bool messageSent = _messageManager.InsertMessage(encryptedMessage, _username);
         }
 
         public void RefreshMessagesBox()
@@ -283,17 +288,19 @@ namespace CipherNew.Forms
 
         private void chkEncrypted_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkEncrypted.Checked)
+           /* if (chkEncrypted.Checked)
             {
-                chkRailFence.Enabled = true;
+                chkRailFenceCaseSensitive.Enabled = true;
                 chkXXTeaWithCBC.Enabled = true;
-                chkRailFence.Checked = true;
+                chkRailFence.Enabled = true;
+                chkRailFenceCaseSensitive.Checked = true;
             }
             else
             {
-                chkRailFence.Enabled = false;
+                chkRailFenceCaseSensitive.Enabled = false;
                 chkXXTeaWithCBC.Enabled = false;
-            }
+                chkRailFence.Enabled = false;
+            }*/
 
             _encrypted = !_encrypted;
             RefreshMessagesBox();
@@ -301,9 +308,10 @@ namespace CipherNew.Forms
 
         private void chkRailFence_CheckedChanged_1(object sender, EventArgs e)
         {
-            if (chkRailFence.Checked)
+            if (chkRailFenceCaseSensitive.Checked)
             {
-                _cypher = new RailFenceCypher();
+                bool isCaseSensitive = true;
+                _cypher = new RailFenceCypher(isCaseSensitive);
                 RefreshMessagesBox();
             }
 
@@ -332,10 +340,11 @@ namespace CipherNew.Forms
             _fileBuffer.isSet = true;
             _fileBuffer.Name = _cypher.Encrypt(fileName);
             _fileBuffer.Text = _cypher.Encrypt(text);
+            _fileBuffer.Hash = (chkRailFence.Checked)? Hashes.MD5.Hash(text.ToLower()) : Hashes.MD5.Hash(text);
 
             uint key = UInt32.Parse(ConfigurationManager.AppSettings["key"]);
             string encryptedMessage = _cypher.Encrypt(_fileBuffer.Text);
-            bool messageSent = _messageManager.InsertFile(_fileBuffer.Name, _fileBuffer.Text, _username);
+            bool messageSent = _messageManager.InsertFile(_fileBuffer.Name, _fileBuffer.Text, _username, _fileBuffer.Hash);
             if (!messageSent)
             {
                 MessageBox.Show("ERROR, FILE NOT SENT!\nTry sending lower sized files");
@@ -346,6 +355,16 @@ namespace CipherNew.Forms
         {
             var window = new Forms.ReceivedFiles(_receivedFiles);
             window.ShowDialog();
+        }
+
+        private void chkRailFence_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkRailFence.Checked)
+            {
+                bool isCaseSensitive = false;
+                _cypher = new RailFenceCypher(isCaseSensitive);
+                RefreshMessagesBox();
+            }
         }
     }
 }

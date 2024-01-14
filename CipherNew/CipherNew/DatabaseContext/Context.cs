@@ -40,15 +40,6 @@ namespace CipherNew.DatabaseContext
                 .HasForeignKey(p => p.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-/*            modelBuilder.Entity<User>()
-                .HasMany(p => p.SentMessages)
-                .WithOne(p => p.Sender)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .HasMany(p => p.ReceivedMessages)
-                .WithOne(p => p.Receiver)
-                .OnDelete(DeleteBehavior.Restrict);*/
         }
     }
 }

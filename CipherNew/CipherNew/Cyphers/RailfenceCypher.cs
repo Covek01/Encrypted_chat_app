@@ -7,11 +7,26 @@ namespace CipherNew.Cyphers
 {
     public class RailFenceCypher : ICypher
     {
+        private readonly bool _isCaseSensitive;
+        public RailFenceCypher(bool isCaseSensitive)
+        {
+            _isCaseSensitive = isCaseSensitive;
+        }
         public string Encrypt(string textInserted)
         {
             uint key = UInt32.Parse(ConfigurationManager.AppSettings["key"]);
 
-            string text = textInserted.ToLower();
+            string text;
+            if (!_isCaseSensitive)
+            {
+                text = textInserted.ToLower();
+            }
+            else 
+            {
+                text = textInserted;
+            }
+
+
             char[,] matrix = new char[key, text.Length];
 
             int i, countRow = 0, j;

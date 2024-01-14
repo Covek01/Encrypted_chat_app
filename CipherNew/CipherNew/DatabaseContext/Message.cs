@@ -16,6 +16,7 @@ namespace CipherNew.DatabaseContext
         public bool IsFile { get; set; }
         public string Filename { get; set; }
         public string Text { get; set; }
+        public string Hash { get; set; }
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public User Sender { get; set; }

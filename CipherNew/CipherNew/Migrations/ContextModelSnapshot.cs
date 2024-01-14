@@ -33,6 +33,10 @@ namespace CipherNew.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsFile")
                         .HasColumnType("boolean");
 

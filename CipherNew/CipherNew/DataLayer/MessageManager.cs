@@ -21,6 +21,7 @@ namespace CipherNew.DataLayer
                 message.IsRead = false;
                 message.IsFile = false;
                 message.Filename = String.Empty;
+                message.Hash = String.Empty;
                 message.Sender = context.Users
                     .Where(p => p.Username == senderUsername)
                     .FirstOrDefault();
@@ -40,7 +41,7 @@ namespace CipherNew.DataLayer
             }
         }
 
-        public bool InsertFile(string filename, string text, string senderUsername)
+        public bool InsertFile(string filename, string text, string senderUsername, string hash)
         {
             try
             {
@@ -51,6 +52,7 @@ namespace CipherNew.DataLayer
                 message.IsRead = false;
                 message.IsFile = true;
                 message.Filename = filename;
+                message.Hash = hash;
                 message.Sender = context.Users
                     .Where(p => p.Username == senderUsername)
                     .FirstOrDefault();

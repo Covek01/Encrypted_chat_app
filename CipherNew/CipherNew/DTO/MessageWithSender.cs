@@ -12,6 +12,7 @@ namespace CipherNew.DTO
         public string Message { get; set; }
         public bool isFile { get; set; }
         public string Filename { get; set; }
+        public string Hash { get; set; }
     }
 
 }

@@ -12,6 +12,7 @@ namespace CipherNew.DTO
         public string Path { get; set; }
         public string Text { get; set; }
         public bool isSet { get; set; }
+        public string Hash { get; set; }
 
     }
 }

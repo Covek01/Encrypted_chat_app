@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CipherNew.DTO;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace CipherNew.Forms
 {
@@ -34,16 +36,28 @@ namespace CipherNew.Forms
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            CreateFolderByInput();
-            string path = ConfigurationManager.AppSettings["received_files_folder"];
+            //CreateFolderByInput();
+            string path = SelectFolderPath();
+
+            //string path = ConfigurationManager.AppSettings["received_files_folder"];
             foreach (var checkedItem in chkListBoxFiles.CheckedItems)
             {
                 string selectedFilename = checkedItem.ToString();
-                string pathFull = $"{path}{txtInputFolder.Text}\\{selectedFilename}";
+                string pathFull = $"{path}\\{selectedFilename}";
                 WriteToFile(pathFull, _cachedFiles[selectedFilename]);
             }
 
             MessageBox.Show("Files are downloaded succesfully");
+        }
+
+        private string SelectFolderPath()
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = ".\\";
+            dialog.IsFolderPicker = true;
+            dialog.ShowDialog();
+
+            return dialog.FileName;
         }
 
         private void WriteToFile(string filePath, string data)
