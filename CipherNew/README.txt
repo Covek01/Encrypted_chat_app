@@ -9,6 +9,15 @@
 
 - Kao komunikacioni medijum se koristi postgres baza podataka.
 - Naredbe za setovanje trigera koji će obaveštavati korisnike se nalaze u fajlu SQL.txt 
+- Kao ORM je korišćen Entity Framework
+
+- Baza je kreirana u okviru Docker kontejnera. Naredbe za kreiranje postgres kontejnera kao i za pristup kontejneru u okviru WSL-a:
+
+docker pull postgres
+
+docker run -d --name postgres2 -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
+
+psql -h localhost -U postgres -p 5432 -W
 
 -------------------------------------------------------------------------------------------------------------------------
 
